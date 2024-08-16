@@ -142,6 +142,10 @@ spec:
           env:
             - name: MLFLOW_VERSION
               value: {{ .Values.image.tag | default .Chart.AppVersion | quote }}
+          {{- if .Values.auth.enabled }}
+            - name: MLFLOW_AUTH_CONFIG_PATH
+              value: "/etc/secrets/auth.ini"
+          {{- end }}
           {{- range $key, $value := .Values.extraEnvVars }}
             - name: {{ upper $key }}
               value: {{ $value | quote }}
@@ -155,8 +159,13 @@ spec:
             - secretRef:
                 name: {{ . }}
           {{- end }}
-          {{- with .Values.extraVolumeMounts }}
           volumeMounts:
+          {{- if .Values.auth.enabled }}
+            - name: auth-volume
+              mountPath: "/etc/secrets"
+              readOnly: true
+          {{- end }}
+          {{- with .Values.extraVolumeMounts }}
             {{ toYaml . | nindent 12 }}
           {{- end }}
       {{- with .Values.extraContainers }}
@@ -186,6 +195,11 @@ spec:
         - name: migrations-config
           configMap:
             name: {{ template "mlflow.fullname" . }}-migrations
+        {{- end }}
+        {{- if .Values.auth.enabled }}
+        - name: auth-volume
+          secret:
+            secretName: {{ template "mlflow.fullname" . }}-auth-secret
         {{- end }}
       {{- with .Values.extraVolumes }}
         {{- toYaml . | nindent 8 }}

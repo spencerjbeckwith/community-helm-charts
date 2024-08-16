@@ -284,3 +284,11 @@ readinessProbe: {}
   # periodSeconds: 10
   # timeoutSeconds: 1
   # failureThreshold: 3
+
+# -- Authentication information for mlflow. See [mlflow authentication](https://www.mlflow.org/docs/latest/auth/index.html#configuration). Note that this is only supported in mlflow versions 2.5.0 or later.
+auth: {}
+  # enabled: true
+  # defaultPermission:
+  # databaseUri: postgres://
+  # adminUsername: admin
+  # adminPassword: password
